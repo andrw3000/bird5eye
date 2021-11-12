@@ -12,6 +12,7 @@ aw_data = 'SB';
 chl_type = 'jerlov';
 jerlov = 'PW';
 model_type = 'new';
+macbeth_col = 19;
 
 % Colour display options
 gamma = 1;

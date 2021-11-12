@@ -15,13 +15,13 @@ function aw = a_water(lam, aw_data)
              
    elseif strcmpi(aw_data, 'SB')
 
-      load('_data_input/aw_smith_baker.mat', 'lam_sb', 'aw_sb');
+      load('data_input/aw_smith_baker.mat', 'lam_sb', 'aw_sb');
       lam_raw = lam_sb;
       aw_raw  = aw_sb;
       
    elseif strcmpi(aw_data, 'PF')
       
-      load('_data_input/aw_pope.mat', 'lam_pope', 'aw_pope');
+      load('data_input/aw_pope.mat', 'lam_pope', 'aw_pope');
       lam_raw = lam_pope;
       aw_raw  = aw_pope;
    

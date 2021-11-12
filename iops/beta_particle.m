@@ -28,7 +28,7 @@ function beta = beta_particle(psi, pf_type)
 %  Petzold average phase function by Mobley
    elseif strcmpi(pf_type, 'petzold')
       
-      load('_data_input/pf_avg_petzold', 'psi_petzold', 'avg_petzold');
+      load('data_input/pf_avg_petzold', 'psi_petzold', 'avg_petzold');
       psi_rad_pts = pi * psi_petzold / 180;
       beta = interp1(psi_rad_pts, avg_petzold, psi, 'linear', 'extrap');
       

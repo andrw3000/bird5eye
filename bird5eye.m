@@ -17,10 +17,13 @@ function bird = bird5eye(depths, spec, jerlov, pf_type, chl_type, ...
 %--------------------------------------------------------------------------
 
 %  Add necessary dependancies to path
-   addpath('boundaries')
-   addpath('chlorophyl')
-   addpath('iops')
-   addpath('params')
+   addpath([pwd, '/boundaries'])
+   addpath([pwd, '/chlorophyl'])
+   addpath([pwd, '/data_input'])
+   addpath([pwd, '/functions'])
+   addpath([pwd, '/iops'])
+   addpath([pwd, '/params'])
+   addpath([pwd, '/saved_params'])
 
 %  Load/compute/save parameters
 
@@ -165,14 +168,13 @@ function bird = bird5eye(depths, spec, jerlov, pf_type, chl_type, ...
       
    end
 
- 
 %  Depth indep Ricatti IOPs
 %  ------------------------
 
 %  Pure water absorption coefficients, [B, B]
    p.aw = diag(bandwidth_avg(a_water(p.lam, aw_data), p.bwid, p.B0));
 
-%  Pure water scattering coefficients, [B, B]
+   %  Pure water scattering coefficients, [B, B]
    p.bw = diag(bandwidth_avg(b_water(p.lam), p.bwid, p.B0));
    
 %  Pure water attenuation [B, B]
@@ -200,7 +202,7 @@ function bird = bird5eye(depths, spec, jerlov, pf_type, chl_type, ...
    p.rho_w = cell(p.NL, 1);   % Pure water
    p.tau_r = cell(p.NL, 1);   % Raman
    p.rho_r = cell(p.NL, 1);   % Raman
-   
+
    for L = 1:p.NL
       
       for sgn = 1:2
@@ -661,7 +663,7 @@ function bird = bird5eye(depths, spec, jerlov, pf_type, chl_type, ...
       t0surf = tic;
    end
    
-%  Array to store upwelling solution + bottom boundary
+%  Array to store downwelling solution + surface boundary
    over = cell(nsubs, 1);
    
    for i = 1:nsubs
@@ -835,7 +837,7 @@ function bird = bird5eye(depths, spec, jerlov, pf_type, chl_type, ...
 %     Upwelling exterior radiance
       ext(d).rad(1).up = NaN(p.B, p.M, 1, p.NL);
 
-      if d == d0  % iff d = d0 = 1 iff d1 = 0
+      if d == d0  % iff d = d0 = 1 iff i = 0
 
          for L = 1:p.NL
 

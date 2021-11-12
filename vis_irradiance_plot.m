@@ -16,7 +16,7 @@ jerlov = 'PW';
 model_type = 'new';
 
 bandwidth = 10;  % Bandwidth resolution
-macbeth = 1;  % Macbeth colour choice for botom boundary
+macbeth_col = 1;  % Macbeth colour choice for botom boundary
 
 model_name = ['spot_', model_type, '_', band_run, ...
               '_bwid', num2str(bandwidth), ...
@@ -47,7 +47,7 @@ binterp = binterp(:);
 for d = 1:(nsub + d0)
 
    figure;
-   for ob = 1:p0(d)
+   for ob = 1:pobs(d)
       hold on
       plotinterp = interp1(bnames, ud_int{d}(:,ob), binterp, 'pchip');
 
@@ -84,7 +84,7 @@ for d = 1:(nsub + d0)
       yticklabels(ylabs);
    end
 
-   legend(num2str(obs(1:p0(d)), 'z = %.0fm'), 'Location', 'northeast');
+   legend(num2str(obs(1:pobs(d)), 'z = %.0fm'), 'Location', 'northeast');
 
    plot_name = ['outputs/_intIR_', model_name, ...
                 '_botdep_', num2str(round(bot_depths(d))), '.png'];
