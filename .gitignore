@@ -1,6 +1,5 @@
-./.DS_Store
-./debug
-./imported_modules
-./joe5eye
-./outputs
-./saved_models
+.DS_Store
+debug
+imported_modules
+outputs
+saved_models
