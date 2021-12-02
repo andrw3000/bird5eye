@@ -55,6 +55,10 @@ function sky = sky_radiance(sol, p)
    
 %  Relative sky radiance: radiance / zenith radiance
    rel_sky_rad = (grad_th0 .* indi_zeta) ./ (grad_cnst .* indi_zenith);
+
+%  Specular sky rad
+   %rel_sky_rad = th0 < 0.17;
+   
    
 %  Quad averaging and irradiance
 %  -----------------------------

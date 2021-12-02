@@ -2,7 +2,7 @@
 %  bird5eye: a `bird's-eye' view simulation
 %--------------------------------------------------------------------------
 
-function bird = bird5eye(depths, spec, jerlov, pf_type, chl_type, ...
+function bird = bird5eye(bnum, depths, spec, jerlov, pf_type, chl_type, ...
                          aw_data, num_sub_bands, inel, model_type, mbcol)
 
 %  Deactivate comments
@@ -20,7 +20,6 @@ function bird = bird5eye(depths, spec, jerlov, pf_type, chl_type, ...
    addpath([pwd, '/boundaries'])
    addpath([pwd, '/chlorophyl'])
    addpath([pwd, '/data_input'])
-   addpath([pwd, '/functions'])
    addpath([pwd, '/iops'])
    addpath([pwd, '/params'])
    addpath([pwd, '/saved_params'])
@@ -78,8 +77,7 @@ function bird = bird5eye(depths, spec, jerlov, pf_type, chl_type, ...
          fprintf(' [Completed in %ds]\n', t1s)
       end
 
-   end
-
+   end   
    
 %  Comment enabler
    p.comment = comment;
@@ -235,15 +233,30 @@ function bird = bird5eye(depths, spec, jerlov, pf_type, chl_type, ...
 %  Boundary conditions (bott, surf, sky)
 %  -------------------------------------
 
+%  From experiment
+   addpath([pwd, '/data_hcube'])
+   load('exp_macbeth.mat', 'exp_dwirr')
+   load('exp_macnorm.mat', 'exp_normcols')
+
+%  Solar irradiance, band averaged [B, 1]
+   %solirr = bandwidth_avg(params_sol_irr(p.lam), p.bwid, p.B0);
+   solirr = exp_dwirr(bnum);
+   
+   % Uniform irradiance
+   %solirr = ones(p.B, 1);
+   solirr = solirr(:);
+
 %  Bottom reflectance, band averaged [B, 1] to geometric Rbb, [BM, BM]
    if bc == 0
       bottom_rfl = bandwidth_avg(params_bottom(p.lam), p.bwid, p.B0);
    else
-      bottom_rfl = bandwidth_avg(params_macbeth(p.lam, bc), p.bwid, p.B0);
+      bottom_rfl = squeeze(exp_normcols(1, 25, bnum));
+      %bottom_rfl = bandwidth_avg(params_macbeth(p.lam, bc), p.bwid, p.B0);
    end
 
 %  MacBeth reflectance (pre-band averaged)/RGB reference/labels; cell(24,1)
-   macbeth_rfl = bandwidth_avg(params_macbeth(p.lam, mbcol), p.bwid, p.B0);
+   %macbeth_rfl = bandwidth_avg(params_macbeth(p.lam, mbcol), p.bwid, p.B0);
+   macbeth_rfl = squeeze(exp_normcols(1, mbcol, bnum));
 
 %  Bottom boundaries
    bott.Rmb = cell(p.NL, 1); 
@@ -261,11 +274,7 @@ function bird = bird5eye(depths, spec, jerlov, pf_type, chl_type, ...
       surf.Tab{L} = kron(surf.Tab{L}, eye(p.B));
       surf.Tba{L} = kron(surf.Tba{L}, eye(p.B));
    end
-   
-%  Solar irradiance, band averaged [B, 1]
-   %solirr = bandwidth_avg(params_sol_irr(p.lam), p.bwid, p.B0);
-   solirr = ones(p.B, 1);
-   solirr = solirr(:);
+  
 
 %  Modified solar irradiance
    %bnam = bandwidth_avg(p.lam, p.bwid, p.B0);
@@ -974,7 +983,7 @@ function bird = bird5eye(depths, spec, jerlov, pf_type, chl_type, ...
          end
 
 
-%        Upwelling exterior radiance transform
+%        Upwelling interior radiance transform
          int(d).rad(ob).up = repmat(int(d).rad(ob).up, [1, 1, p.N, 1]);
          int(d).rad(ob).up = ...
                sum(int(d).rad(ob).up(:,:,:,1:(end-1)) .* exP + ...

@@ -60,23 +60,20 @@ ttot = tic;
 band_run = 'sing';
 inel = 'off';
 pf_type = 'petzold';
-aw_data = 'SB';
-chl_type = 'jerlov';
+aw_data = 'PF';
+chl_type = 'jerlov'; %'jerlov';
 jerlov = 'PW';
 model_type = 'new';
 bandwidth = 10;
 
 % Spectrum boundaries,'band_max - band_max' divisible by 'bandwidth'
-band_min = 390;
-band_max = 740;
+band_min = 400;
+band_max = 730;
 
 % Observation and bottom depths
 obs_depths = 0;
 mac_depths = 0:0.25:3.5;
 bot_depths = [mac_depths, 5];
-
-% Activate plotting
-plot_graph = 'off';
 
 %--------------------------------------------------------------------------
 %  Entrance steps: depth computations
@@ -150,7 +147,7 @@ if strcmpi(band_run, 'sing')
       fprintf('\n(*) Single bandwidth run at %dnm', round(bands(b)))
 
       band = [spec(b), spec(b+1)];
-      bird{b} = bird5eye(depths, band, jerlov, pf_type, chl_type, ...
+      bird{b} = bird5eye(b, depths, band, jerlov, pf_type, chl_type, ...
                          aw_data, num_subs, inel, model_type, macbeth_col);
 
    %  Time wavelength runs
@@ -212,7 +209,7 @@ if strcmpi(band_run, 'sing')
 % Spectral wavelength runs
 elseif strcmpi(band_run, 'spec')
    
-   bird = bird5eye(depths, spec, jerlov, pf_type, chl_type, ...
+   bird = bird5eye(1:num_bands, depths, spec, jerlov, pf_type, chl_type, ...
                       aw_data, num_subs, inel, model_type, macbeth_col);
 
 %  Store outputs
@@ -291,17 +288,5 @@ else
    fprintf('\n(*) Total running time: %ds\n\n', tots)
 end
 
-
-%--------------------------------------------------------------------------
-%  Nightcap: Plot
-%--------------------------------------------------------------------------
-
-if strcmpi(plot_graph, 'on')
-   
-   %close all
-   %load('data_input/rfl_macbeth.mat', 'macbeth_names', ...
-   %                                   'macbeth_colours');
-   
-end
 
 end

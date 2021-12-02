@@ -4,26 +4,19 @@
 
 close all
 
-% Choose model
-band_run = 'sing';
-inel = 'off';
-pf_type = 'petzold';
-aw_data = 'PF';
-chl_type = 'jerlov'; %'jerlov';
-jerlov = 'PW';
-model_type = 'new';
-
 % Colour display options
 gamma = 1;
 brightness = 1;
 macbeth_norm = 19;
 
-addpath([pwd, '/saved_models'])
-addpath([pwd, '/params'])
+addpath([pwd, '/data_hcube'])
 addpath([pwd, '/colours'])
 addpath([pwd, '/colours/spectral_color'])
 
 load('data_input/rfl_macbeth.mat', 'macbeth_names', 'macbeth_colours');
+load('data_hcube/exp_macbeth.mat');
+load('data_hcube/exp_macnorm.mat', 'exp_normcols');
+
 
 % Reverse define the band corners in spec to sample raw rfl values
 bandwidth = 10;
@@ -34,8 +27,8 @@ band_max = band_min + bandwidth * ceil((band_max - band_min) / bandwidth);
 spec = (band_min - bandwidth/2):bandwidth:(band_max + bandwidth/2);
 bands = bandwidth_avg(spec, bandwidth, 1);
 nbands = length(bands);
-nsubs = round(bandwidth/5);  % Sample every 5nm
-subspec = (spec(1):(bandwidth/nsubs):spec(end));
+nsubbs = round(bandwidth/5);  % Sample every 5nm
+subspec = (spec(1):(bandwidth/nsubbs):spec(end));
 subspec = subspec(:);
 
 % Depths
@@ -45,47 +38,32 @@ mac_depths = length(depths);
 % Convert wavelengths to RGB vectors, [1, length(bands), 3]
 RGB = spectrumRGB(bands);
 RGB = brightness * normRGB(RGB, macbeth_norm, bands);
+
+% Normalise by white value
 %RGBw = sum(RGB, 2);
 %RGB = brightness * RGB ./ RGBw;
 
 % Store colours
 mac_dry = cell(24, 1);
-mac_int = cell(24, 1);
-
-for col = 1:24
+mac_exp = cell(24, 1);
    
-   model_name = ['sink_', model_type, '_', band_run, ...
-                 '_bwid', num2str(bandwidth), ...
-                 '_inel_', inel, ...
-                 '_', pf_type, '_pf', ...
-                 '_aw', aw_data, ...
-                 '_chl', chl_type, ...
-                 '_jerlov', jerlov, ...
-                 '_macbeth', num2str(col)];
-           
-   load(['saved_models/', model_name, '.mat'], ...
-                                               'bot_depths', ...
-                                               'ud_ext', ...
-                                               'ud_int', ...
-                                               'ud_dry');
+for col = 1:24
 
-   mac_dry{col} = rfl2rgb(ud_dry{1}, RGB);         % Dry colours, [1, 1, 3]
-   %mac_depths = length(bot_depths) - 1;            % MacBeth depths
-   mac_depths = length(depths);
-   mac_int{col} = cell(mac_depths, 1);             % Wet colours
-
-   %top = bandwidth_avg(params_macbeth(subspec, col), bandwidth, nsubs);
-   %ratio = top ./ ud_int{1};
- 
+   norm_top = squeeze(exp_normcols(1, col, :));
+   mac_dry{col} = rfl2rgb(norm_top, RGB);          % Dry colours, [1, 1, 3]
+   mac_exp{col} = cell(mac_depths, 1);             % Wet colours
+   
    for d = 1:mac_depths
-      mac_int{col}{d} = rfl2rgb(ud_int{d}, RGB);
-      %mac_int{col}{d} = rfl2rgb(ud_ext{d} .* ratio, RGB);
+      %mac_exp{col}{d} = rfl2rgb(ud_ext{d}, RGB);
+      norm_colour = squeeze(exp_normcols(d, col, :));
+      mac_exp{col}{d} = rfl2rgb(norm_colour, RGB) * (1 + (sqrt(d)-1)*1.5);
    end
 
 end
 
 %  Sea colour, [1, 1, 3]
-   sea_col = rfl2rgb(ud_ext{end}, RGB);
+   norm_sea = squeeze(exp_bandcols(1, 25, :)) ./ exp_dwirr;
+   sea_col = rfl2rgb(norm_sea, RGB);
    
 %--------------------------------------------------------------------------
 
@@ -109,10 +87,10 @@ height_dry = (2 * edry) + (3 * gdry) + (4 * sdry);
 
 % Set background colour to sea colour
 pmac_dry = repmat(sea_col, [height_dry, base_dry, 1]);
-pmac_int = cell(mac_depths, 1);
+pmac_exp = cell(mac_depths, 1);
 
 for d = 1:mac_depths
-   pmac_int{d} = repmat(sea_col, [height, base, 1]);
+   pmac_exp{d} = repmat(sea_col, [height, base, 1]);
 end
 
 % Colour tiles
@@ -124,15 +102,15 @@ for col = 1:24
    pmac_dry = colour_sq(i, j, mac_dry{col}, pmac_dry, sdry, edry, gdry);
    
    for d = 1:mac_depths
-      %if bot_depths(d) > 1
-      %   meas = prod(mac_int{col}{d}(mac_int{col}{d} ~= 0));
+      %if depths(d) > 1
+      %   meas = prod(mac_exp{col}{d}(mac_exp{col}{d} ~= 0));
       %   while meas < prod(sea_col)
-      %      mac_int{col}{d} = 1.01 * mac_int{col}{d};
-      %      meas = prod(mac_int{col}{d}(mac_int{col}{d} ~= 0));
+      %      mac_exp{col}{d} = 1.01 * mac_exp{col}{d};
+      %      meas = prod(mac_exp{col}{d}(mac_exp{col}{d} ~= 0));
       %   end
       %end
       
-      pmac_int{d} = colour_sq(i, j, mac_int{col}{d}, pmac_int{d}, s, e, g);
+      pmac_exp{d} = colour_sq(i, j, mac_exp{col}{d}, pmac_exp{d}, s, e, g);
    end
    
 end
@@ -142,18 +120,16 @@ end
 
 close all
 addpath([pwd, '/outputs/'])
-gifname = ['outputs/macgif_', aw_data, '_', jerlov, '.gif'];
+gifname = 'outputs/_experiment.gif';
 
 % Draw GIF
 t1 = 2;
 t2 = 5;
-bot_dep_cm = bot_depths(end) * 100;
-%max_dep_cm = bot_depths(end-1) * 100;
+bot_dep_cm = 5 * 100;
 max_dep_cm = depths(end) * 100;
 
 for d = 1:mac_depths
 
-   %mac_dep_cm = bot_depths(d) * 100;
    mac_dep_cm = depths(d) * 100;
    
    % Sinking plot
@@ -162,7 +138,7 @@ for d = 1:mac_depths
    % Use: 'axis tight manual' so getframe() returns a consistent size
 
    ax_int = nexttile([t1, t2 - 2]);
-   imagesc(ax_int, pmac_int{d});
+   imagesc(ax_int, pmac_exp{d});
    ax_int.XTick = [];
    ax_int.YTick = [];
    ax_int.Box = 'on';
@@ -206,8 +182,8 @@ for d = 1:mac_depths
    
    % Counter
    ax_num = nexttile(t1 * t2 - 1);
-   ax_num.Color = reshape(mac_int{6}{d}, [1, 3]);
-   ax_num.GridColor = reshape(mac_int{6}{d}, [1, 3]);
+   ax_num.Color = reshape(mac_exp{6}{d}, [1, 3]);
+   ax_num.GridColor = reshape(mac_exp{6}{d}, [1, 3]);
    ax_num.DataAspectRatioMode = 'manual';
    ax_num.Box = 'on';
    ax_num.XTick = [];
@@ -231,8 +207,6 @@ for d = 1:mac_depths
    %ax_dep.Title.String = 'Depth Indicator';
    ax_dep.Title.FontSize = 13;
    ax_dep.XTick = [];
-   %ax_dep.YTick = 0:100*4:max_dep_cm;
-   %ax_dep.YTickLabel = num2cell(flip(0:4:bot_depths(end-1)))';
    ax_dep.YTick = 0:50:max_dep_cm;
    ax_dep.YTickLabel = num2cell(flip(0:0.5:depths(end)))';
    ylabel('Depth (m)');
