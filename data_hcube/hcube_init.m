@@ -1,6 +1,5 @@
 % Initialise the Macbeth structure array
 depths = 0:25:350;
-dlen = length(depths);
 bmax = 212;
 ncols = 25;
 

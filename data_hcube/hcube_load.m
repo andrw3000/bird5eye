@@ -4,9 +4,9 @@
 % wl(1)   = 399.0100 nm
 % wl(212) - wl(1) / 212 = 1.6128 nm
 
-close all
-clear
-root_dir = '/Users/Holmes/Programmes/joe5data/';
+%close all
+%clear
+root_dir = '/Users/Holmes/Local/backups/joe5data-20211128/';
 addpath(root_dir)
 addpath([root_dir, 'hcubes/'])
 
@@ -27,7 +27,7 @@ hcrop = hypercube(hcube.DataCube(:, 1:650, 1:bmax), spec).DataCube;
 %hyperspectralViewer(hcrop)
 
 % Print RGB image
-slice = hcrop(:, :, bRGB)*10;
-plot = imagesc(slice);
-datacursormode on
-imwrite(slice, [root_dir, 'rgbs/', 'img_', dname, '.png'])
+%slice = hcrop(:, :, bRGB)*10;
+%plot = imagesc(slice);
+%datacursormode on
+%imwrite(slice, [root_dir, 'rgbs/', 'img_', dname, '.png'])
