@@ -8,15 +8,15 @@ close all
 band_run = 'sing';
 inel = 'off';
 pf_type = 'petzold';
-aw_data = 'SB';
+aw_data = 'PF';
 chl_type = 'jerlov';
 jerlov = 'PW';
 model_type = 'new';
-macbeth_col = 19;
+macbeth_col = 6;
 
 % Colour display options
 gamma = 1;
-brightness = 1.8;
+brightness = 1.4;
 
 addpath([pwd, '/colours'])
 
@@ -24,8 +24,8 @@ load('data_input/rfl_macbeth.mat', 'macbeth_names', 'macbeth_colours');
 
 % Reverse define the band corners in spec to sample raw rfl values
 bandwidth = 10;
-band_min = 390;
-band_max = 740;
+band_min = 400;
+band_max = 730;
 
 band_max = band_min + bandwidth * ceil((band_max - band_min) / bandwidth);
 spec = (band_min - bandwidth/2):bandwidth:(band_max + bandwidth/2);
@@ -44,7 +44,7 @@ model_name = ['sink_', model_type, '_', band_run, ...
               '_jerlov', jerlov, ...
               '_macbeth', num2str(macbeth_col)];
 
-load(['saved_models_', model_type, '/', model_name, '.mat'], ...
+load(['saved_models/', model_name, '.mat'], ...
                                             'bot_depths', ...
                                             'ud_int', ...
                                             'ud_dry');
@@ -56,6 +56,7 @@ RGBw = sum(RGB, 2);
 RGB = brightness * RGB ./ RGBw;
 
 mac_dry     = rfl2rgb(ud_dry{1}, RGB);       % Dry colours, [1, 1, 3]
+    mac_dry(mac_dry > 1) = 1;
 mac_depths  = length(bot_depths) - 1;        % MacBeth depths
 mac_int     = cell(mac_depths, 1);           % Wet colours
 
@@ -113,7 +114,7 @@ sink = -bot_depths(end) * ones(size(X1));
 %--------------------------------------------------------------------------
 
 close all
-gifname = ['outputs/mac_gif/_mac_cross_', model_type, '_colour', ...
+gifname = ['outputs/_mac_cross_', model_type, '_colour', ...
                                    num2str(macbeth_col), '.gif'];
 
 for d = 1:mac_depths
@@ -164,7 +165,7 @@ for d = 1:mac_depths
    % Surf Plot
    ax_surf = nexttile([2,2]);
    
-   Z50 = 0.5 * rand(size(X50));
+   Z50 = 0 * 0.5 * rand(size(X50));
    Z1 = interp2(X50, Y50, Z50, X1, Y1);
    sea = surf(ax_surf, X1, Y1, Z1, view{d});
    sea.EdgeColor = 'none';
@@ -174,7 +175,7 @@ for d = 1:mac_depths
    sink(a2, b2) = -bot_depths(d);
    sink(b2, a2) = -bot_depths(d);
    bed = surf(ax_surf, X1, Y1, sink);
-   bed.FaceColor = mac_dry;
+   bed.FaceColor = squeeze(mac_dry);
    bed.EdgeColor = 'none';
    ax_surf.ZLim = [-bot_depths(end-1), bot_depths(end-1)];
    ax_surf.XTick = [];
@@ -195,8 +196,8 @@ for d = 1:mac_depths
    %ax_dep.Title.String = 'Depth Indicator';
    ax_dep.Title.FontSize = 13;
    ax_dep.XTick = [];
-   ax_dep.YTick = 0:100*4:max_dep_cm;
-   ax_dep.YTickLabel = num2cell((0:4:bot_depths(end-1)))';
+   ax_dep.YTick = 0:50:max_dep_cm;
+   ax_dep.YTickLabel = num2cell(bot_depths(1:2:end))';
    ylabel('Depth (m)');
    camroll(-90)
    
