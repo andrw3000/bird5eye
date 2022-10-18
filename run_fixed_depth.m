@@ -179,7 +179,7 @@ if strcmpi(band_run, 'sing')
       fprintf('\n(*) Single bandwidth run at %dnm', round(band_names(b)))
 
       band = [spec(b), spec(b+1)];
-      bird{b} = bird5eye(depths, band, jerlov, pf_type, chl_type, ...
+      bird{b} = bird5eye(b, depths, band, jerlov, pf_type, chl_type, ...
                          aw_data, num_subs, inel, model_type, macbeth_col);
 
    %  Time wavelength runs

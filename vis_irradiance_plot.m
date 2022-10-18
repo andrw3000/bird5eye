@@ -16,7 +16,7 @@ jerlov = 'PW';
 model_type = 'new';
 
 bandwidth = 10;  % Bandwidth resolution
-macbeth_col = 1;  % Macbeth colour choice for botom boundary
+macbeth_col = 19;  % Macbeth colour choice for botom boundary
 
 model_name = ['spot_', model_type, '_', band_run, ...
               '_bwid', num2str(bandwidth), ...
@@ -37,8 +37,8 @@ load(['saved_models/', model_name, '.mat'], 'bird', ...
                                             'ud_ext', ...
                                             'ud_int');
 
-bmin = 400;
-bmax = 600;
+bmin = 390;
+bmax = 700;
 bplot = bmin:10:bmax;
 bnames = band_names(:);
 binterp = bmin:1:bmax;

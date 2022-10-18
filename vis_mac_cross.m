@@ -19,6 +19,7 @@ gamma = 1;
 brightness = 1.4;
 
 addpath([pwd, '/colours'])
+addpath([pwd, '/colours/spectral_color'])
 
 load('data_input/rfl_macbeth.mat', 'macbeth_names', 'macbeth_colours');
 
