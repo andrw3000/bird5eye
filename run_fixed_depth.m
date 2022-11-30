@@ -56,7 +56,7 @@ ttot = tic;
 
 % Model options
 band_run = 'sing';
-inel = 'off';
+inel = 'all';
 pf_type = 'petzold';
 aw_data = 'SB';
 chl_type = 'jerlov';

@@ -50,7 +50,7 @@ ax = gca;
 ax.XTick = [];
 ax.YTick = [];
 ax.DataAspectRatioMode = 'manual';
-ax.Title.String = 'Manufacturer* Prescribed MacBeth Pallet';
+ax.Title.String = 'Manufacturer Prescribed MacBeth Pallet';
 ax.Title.FontSize = 13;
 hold on
 
@@ -74,8 +74,8 @@ end
 
 legend(lgd_names, 'FontSize', 10, 'Location', 'eastoutside');
 
-cr = '*Copyright 2009, X­Rite Incorporated.';
-annotation('textbox', [.01, .2, .2, 0], 'String', cr);%, 'FitBoxToText', 'on');
+%cr = '*Copyright 2009, X­Rite Incorporated.';
+%annotation('textbox', [.01, .2, .2, 0], 'String', cr);%, 'FitBoxToText', 'on');
 
 % Number the tiles
 for sq = 1:24
