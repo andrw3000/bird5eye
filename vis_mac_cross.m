@@ -118,6 +118,9 @@ close all
 gifname = ['outputs/_mac_cross_', model_type, '_colour', ...
                                    num2str(macbeth_col), '.gif'];
 
+increment_cm = 200 * (bot_depths(2) - bot_depths(1));
+% disp(increment_cm)
+
 for d = 1:mac_depths
    
    mac_dep_cm = bot_depths(d) * 100;
@@ -197,7 +200,7 @@ for d = 1:mac_depths
    %ax_dep.Title.String = 'Depth Indicator';
    ax_dep.Title.FontSize = 13;
    ax_dep.XTick = [];
-   ax_dep.YTick = 0:50:max_dep_cm;
+   ax_dep.YTick = 0:increment_cm:max_dep_cm;
    ax_dep.YTickLabel = num2cell(bot_depths(1:2:end))';
    ylabel('Depth (m)');
    camroll(-90)
